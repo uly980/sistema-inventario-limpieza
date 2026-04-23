@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacer un Pedido</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <h1>🛒 Hacer un Pedido</h1>
+    </header>
+
+    <main class="main-content">
+        <!-- Buscador de productos -->
+        <div class="buscador-wrapper buscador-cliente">
+            <span class="buscador-icon">🔍</span>
+            <input type="text" id="buscador-cliente" class="buscador-input" placeholder="Buscar producto...">
+        </div>
+
+        <div id="lista-productos" class="grid-productos">
+            <div class="mensaje-vacio">Cargando productos disponibles...</div>
+        </div>
+
+
+        <div class="carrito-flotante">
+            <div class="carrito-header">
+                <span>Tu Pedido:</span>
+                <span id="carrito-total">$0.00</span>
+            </div>
+            
+            <div id="carrito-items" class="carrito-items">
+                <div style="color: var(--text-muted); text-align: center;">Agrega productos para empezar...</div>
+            </div>
+
+            <div style="display: flex; gap: 15px; align-items: flex-end;">
+                <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                    <label for="nombre-cliente" style="font-size: 1rem;">Tu Nombre:</label>
+                    <input type="text" id="nombre-cliente" placeholder="Ej. Juan Pérez" style="padding: 12px; font-size: 1.1rem;">
+                </div>
+                <button id="btn-enviar-pedido" class="btn-primary" style="padding: 14px 20px;">🚀 Enviar Pedido</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase SDK (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <!-- App -->
+    <script src="shared.js"></script>
+    <script src="cliente.js"></script>
+</body>
+</html>
