@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración - Inventario y Pedidos</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ==================== PANTALLA DE LOGIN ==================== -->
+    <div id="pantalla-login" class="login-overlay">
+        <div class="login-card">
+            <div class="login-logo">🧹</div>
+            <h2>Panel de Administración</h2>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">Ingresa tu contraseña para continuar.</p>
+            <div class="form-group">
+                <label for="input-password">Contraseña:</label>
+                <div class="password-wrapper">
+                    <input type="password" id="input-password" placeholder="••••••••" autocomplete="current-password">
+                    <button type="button" id="btn-ver-password" class="btn-ver-pass" title="Ver contraseña">👁️</button>
+                </div>
+            </div>
+            <p id="login-error" style="color: var(--danger-color); font-weight: bold; display: none; margin-bottom: 15px;">
+                ❌ Contraseña incorrecta. Intenta de nuevo.
+            </p>
+            <button id="btn-login" class="btn-guardar" style="width: 100%; padding: 18px; font-size: 1.2rem;">
+                🔓 Entrar
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== PANEL PRINCIPAL (oculto hasta que pase el login) ==================== -->
+    <div id="panel-principal" class="oculto">
+
+        <header class="header">
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+                <h1>⚙️ Panel de Control</h1>
+                <a href="cliente.html" target="_blank" style="color: var(--primary-color); font-size: 1rem; text-decoration: none;">🔗 Abrir ventana para Clientes</a>
+            </div>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <div class="header-buttons nav-tabs">
+                    <button id="tab-inventario" class="btn-tab activo">📦 Inventario</button>
+                    <button id="tab-pedidos" class="btn-tab">🚚 Pedidos <span id="badge-pedidos" class="badge oculto"></span></button>
+                    <button id="tab-historial" class="btn-tab">📜 Historial</button>
+                    <button id="tab-reporte" class="btn-tab">📅 Reporte Mensual</button>
+                </div>
+                <button id="btn-logout" class="btn-logout" title="Cerrar sesión">🔒 Salir</button>
+            </div>
+        </header>
+
+        <!-- DASHBOARD RESUMEN -->
+        <div class="dashboard-bar">
+            <div class="dash-card">
+                <div class="dash-label">Pedidos Listos</div>
+                <div id="dash-listos" class="dash-num" style="color: var(--success-color);">0</div>
+            </div>
+            <div class="dash-card">
+                <div class="dash-label">Pedidos Faltantes</div>
+                <div id="dash-faltantes" class="dash-num" style="color: var(--danger-color);">0</div>
+            </div>
+            <div class="dash-card">
+                <div class="dash-label">Productos en Alerta</div>
+                <div id="dash-alerta" class="dash-num" style="color: var(--warning-color);">0</div>
+            </div>
+        </div>
+
+        <!-- VISTA INVENTARIO -->
+        <main id="vista-inventario" class="main-content">
+            <div class="actions-bar">
+                <button id="btn-nuevo-producto" class="btn-primary">➕ Nuevo Producto</button>
+                <button id="btn-reporte" class="btn-secondary">📋 Ver Faltantes</button>
+                <div class="buscador-wrapper">
+                    <span class="buscador-icon">🔍</span>
+                    <input type="text" id="buscador-inventario" placeholder="Buscar producto..." class="buscador-input">
+                </div>
+            </div>
+            <div id="lista-productos" class="grid-productos mt-20">
+                <div class="mensaje-vacio">Cargando inventario...</div>
+            </div>
+        </main>
+
+        <!-- VISTA PEDIDOS -->
+        <main id="vista-pedidos" class="main-content oculto">
+            <div class="actions-bar">
+                <button id="btn-exportar-pedidos" class="btn-secondary">📥 Exportar Pedidos (CSV)</button>
+            </div>
+            <div id="lista-pedidos" class="grid-pedidos mt-20">
+                <div class="mensaje-vacio">No hay pedidos registrados.</div>
+            </div>
+        </main>
+
+        <!-- VISTA HISTORIAL -->
+        <main id="vista-historial" class="main-content oculto">
+            <div class="actions-bar">
+                <button id="btn-exportar-historial" class="btn-secondary">📥 Exportar Historial (CSV)</button>
+            </div>
+            <div id="tabla-historial" class="mt-20">
+                <div class="mensaje-vacio">No hay movimientos registrados aún.</div>
+            </div>
+        </main>
+
+        <!-- VISTA REPORTE MENSUAL -->
+        <main id="vista-reporte-mensual" class="main-content oculto">
+            <div class="actions-bar" style="align-items: center;">
+                <label for="select-mes" style="font-weight: bold; font-size: 1rem;">Filtrar por mes:</label>
+                <select id="select-mes" style="padding: 12px 16px; font-size: 1rem; border-radius: 10px; border: 2px solid var(--border-color); outline: none;"></select>
+                <button id="btn-exportar-reporte" class="btn-secondary">📥 Exportar Reporte (CSV)</button>
+            </div>
+            <div id="contenido-reporte-mensual" class="mt-20"></div>
+        </main>
+
+    </div><!-- /panel-principal -->
+
+    <!-- ==================== MODALES ==================== -->
+
+    <!-- Modal Nuevo / Editar Producto -->
+    <div id="modal-nuevo" class="modal oculto">
+        <div class="modal-contenido">
+            <h2 id="titulo-modal-nuevo">Agregar Nuevo Producto</h2>
+            <form id="form-nuevo-producto">
+                <div class="form-group">
+                    <label for="nombre-prod">Nombre del Producto:</label>
+                    <input type="text" id="nombre-prod" required placeholder="Ej. Cloro, Escoba...">
+                </div>
+                <div class="form-group">
+                    <label for="cantidad-prod">Cantidad Inicial:</label>
+                    <input type="number" id="cantidad-prod" required min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="minimo-prod">Mínimo para Alerta:</label>
+                    <input type="number" id="minimo-prod" required min="1" value="5">
+                </div>
+                <div class="form-group">
+                    <label for="precio-prod">Precio de Venta ($):</label>
+                    <input type="number" id="precio-prod" required min="0" step="0.5" value="0">
+                </div>
+                <div class="modal-botones">
+                    <button type="button" class="btn-cancelar" id="btn-cancelar-nuevo">❌ Cancelar</button>
+                    <button type="submit" class="btn-guardar">💾 Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Ajustar Stock -->
+    <div id="modal-stock" class="modal oculto">
+        <div class="modal-contenido modal-pequeno">
+            <h2 id="titulo-ajuste">Ajustar Stock</h2>
+            <p id="nombre-producto-ajuste" class="texto-destacado"></p>
+            <div class="form-group">
+                <label id="label-ajuste" for="cantidad-ajuste">¿Cuántos vas a sumar?</label>
+                <input type="number" id="cantidad-ajuste" min="1" value="1">
+            </div>
+            <div class="form-group">
+                <label for="motivo-ajuste">Motivo (opcional):</label>
+                <input type="text" id="motivo-ajuste" placeholder="Ej. Compra, Uso en producción...">
+            </div>
+            <div class="modal-botones">
+                <button type="button" class="btn-cancelar" id="btn-cancelar-ajuste">❌ Cancelar</button>
+                <button type="button" class="btn-guardar" id="btn-confirmar-ajuste">✅ Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Reporte Faltantes -->
+    <div id="modal-reporte" class="modal oculto">
+        <div class="modal-contenido modal-grande">
+            <h2>⚠️ Reporte de Productos Faltantes</h2>
+            <div id="lista-reporte" class="lista-reporte"></div>
+            <div class="modal-botones">
+                <button type="button" class="btn-guardar" onclick="window.print()">🖨️ Imprimir</button>
+                <button type="button" class="btn-cancelar" id="btn-cerrar-reporte">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmar Entrega -->
+    <div id="modal-entrega" class="modal oculto">
+        <div class="modal-contenido modal-pequeno">
+            <h2>📦 Confirmar Entrega</h2>
+            <p style="margin-bottom: 20px; color: var(--text-muted);">¿Quién está entregando este pedido?</p>
+            <div class="form-group">
+                <label for="nombre-entregador">Nombre del entregador:</label>
+                <input type="text" id="nombre-entregador" placeholder="Ej. María García">
+            </div>
+            <div class="modal-botones">
+                <button type="button" class="btn-cancelar" id="btn-cancelar-entrega">❌ Cancelar</button>
+                <button type="button" class="btn-guardar" id="btn-confirmar-entrega">🚀 Confirmar Entrega</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <!-- App -->
+    <script src="shared.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
